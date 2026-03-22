@@ -48,100 +48,88 @@ class DustParticles: ObservableObject {
     }
 }
 
-// MARK: - Menu Card
-
-struct MenuCard: View {
-    let label: String
-    let title: String
-
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(label.uppercased())
-                .font(.custom("Georgia", size: 11))
-                .tracking(2)
-                .foregroundColor(Color(red: 220/255, green: 195/255, blue: 140/255).opacity(0.5))
-            Text(title)
-                .font(.custom("Georgia-Italic", size: 22))
-                .tracking(1)
-                .foregroundColor(Color(red: 235/255, green: 215/255, blue: 170/255).opacity(0.92))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
-        .padding(.horizontal, 12)
-        .background(Color.black.opacity(0.45))
-        .overlay(
-            Rectangle()
-                .stroke(
-                    Color(red: 220/255, green: 195/255, blue: 140/255).opacity(0.2),
-                    lineWidth: 1
-                )
-        )
-    }
-}
-
 // MARK: - Splash View
 
 struct SplashView: View {
     @State private var buddhaVisible = false
     @State private var buddhaScale: CGFloat = 1.0
+    @State private var overlayOpacity: Double = 0
+    @State private var showMind = false
     @StateObject private var dust = DustParticles()
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack {
-                Color.black.ignoresSafeArea()
+        if showMind {
+            MindView()
+        } else {
+            GeometryReader { geo in
+                ZStack {
+                    Color.black.ignoresSafeArea()
 
-                // scaledToFill fills the screen, scaleEffect zooms into the face.
-                // anchor y:0.2 targets the upper portion (face area).
-                // offset rises from below screen to final position.
-                Image("BuddhaImage")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.0))
-                    .offset(y: buddhaVisible ? 0 : geo.size.height)
-                    .opacity(buddhaVisible ? 1 : 0)
-                    .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
-                    .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaScale)
+                    Image("BuddhaImage")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.0))
+                        .offset(y: buddhaVisible ? 0 : geo.size.height)
+                        .opacity(buddhaVisible ? 1 : 0)
+                        .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
+                        .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaScale)
+                        .onTapGesture { enterMind() }
 
-                // Dust particles — updated inside Canvas per frame via TimelineView
-                TimelineView(.animation) { timeline in
-                    Canvas { ctx, size in
-                        dust.update(size: size)
-                        for p in dust.particles {
-                            let fadeFactor = min((p.y / size.height) * 3, 1)
-                            let alpha = p.opacity * fadeFactor
-                            guard alpha > 0 else { continue }
-                            ctx.fill(
-                                Path(ellipseIn: CGRect(
-                                    x: p.x - p.radius,
-                                    y: p.y - p.radius,
-                                    width: p.radius * 2,
-                                    height: p.radius * 2
-                                )),
-                                with: .color(Color(
-                                    red: 220/255,
-                                    green: 195/255,
-                                    blue: 140/255,
-                                    opacity: alpha
-                                ))
-                            )
+                    // Dust particles
+                    TimelineView(.animation) { timeline in
+                        Canvas { ctx, size in
+                            dust.update(size: size)
+                            for p in dust.particles {
+                                let fadeFactor = min((p.y / size.height) * 3, 1)
+                                let alpha = p.opacity * fadeFactor
+                                guard alpha > 0 else { continue }
+                                ctx.fill(
+                                    Path(ellipseIn: CGRect(
+                                        x: p.x - p.radius,
+                                        y: p.y - p.radius,
+                                        width: p.radius * 2,
+                                        height: p.radius * 2
+                                    )),
+                                    with: .color(Color(
+                                        red: 220/255,
+                                        green: 195/255,
+                                        blue: 140/255,
+                                        opacity: alpha
+                                    ))
+                                )
+                            }
                         }
+                        .id(timeline.date)
                     }
-                    // Reference timeline.date so Canvas redraws every frame
-                    .id(timeline.date)
-                }
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
 
+                    // Black veil that closes in when entering the mind
+                    Color.black
+                        .opacity(overlayOpacity)
+                        .ignoresSafeArea()
+                        .allowsHitTesting(false)
+                }
+                .task {
+                    dust.initialize(size: geo.size)
+                    try? await Task.sleep(nanoseconds: 16_000_000)
+                    buddhaVisible = true
+                    buddhaScale = 1.4
+                }
             }
-            .task {
-                dust.initialize(size: geo.size)
-                // Wait one frame so SwiftUI captures the initial "from" state
-                try? await Task.sleep(nanoseconds: 16_000_000)
-                buddhaVisible = true
-                buddhaScale = 1.4
-            }
+        }
+    }
+
+    private func enterMind() {
+        // Zoom into the face and fade to black, then switch to MindView
+        withAnimation(.easeIn(duration: 0.5)) {
+            buddhaScale = 12.0
+            overlayOpacity = 1.0
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 550_000_000)
+            showMind = true
         }
     }
 }

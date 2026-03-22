@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		31520C86F19449638DC186B3 /* BuddhiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E5469331D9F34124B016BB /* BuddhiApp.swift */; };
 		51CDB45AAAC51A710D042882 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2DBFC04759CF3F9FD9D8BD /* SplashView.swift */; };
+		6CA4589FEA0A6B83A142E0E5 /* MindView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEDE612F9C18BA075EFC0BC /* MindView.swift */; };
 		E5DEB4B559892555D47832B1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D54963679E06E76A601311 /* ContentView.swift */; };
 		F7080DFF0BA4EBD5BAA07CB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62F5D6F64F7440A326CC43F1 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -16,6 +17,7 @@
 /* Begin PBXFileReference section */
 		11E5469331D9F34124B016BB /* BuddhiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddhiApp.swift; sourceTree = "<group>"; };
 		2F2DBFC04759CF3F9FD9D8BD /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		5CEDE612F9C18BA075EFC0BC /* MindView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MindView.swift; sourceTree = "<group>"; };
 		62F5D6F64F7440A326CC43F1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8155D3271E035CA4220EABA5 /* Buddhi.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Buddhi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D54963679E06E76A601311 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -38,6 +40,7 @@
 				11E5469331D9F34124B016BB /* BuddhiApp.swift */,
 				86D54963679E06E76A601311 /* ContentView.swift */,
 				F942D0FD69F4836C16240DE2 /* Info.plist */,
+				5CEDE612F9C18BA075EFC0BC /* MindView.swift */,
 				2F2DBFC04759CF3F9FD9D8BD /* SplashView.swift */,
 			);
 			path = Buddhi;
@@ -120,6 +123,7 @@
 			files = (
 				31520C86F19449638DC186B3 /* BuddhiApp.swift in Sources */,
 				E5DEB4B559892555D47832B1 /* ContentView.swift in Sources */,
+				6CA4589FEA0A6B83A142E0E5 /* MindView.swift in Sources */,
 				51CDB45AAAC51A710D042882 /* SplashView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
