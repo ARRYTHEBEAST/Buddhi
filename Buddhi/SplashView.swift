@@ -83,7 +83,6 @@ struct MenuCard: View {
 
 struct SplashView: View {
     @State private var buddhaVisible = false
-    @State private var menuVisible = false
     @StateObject private var dust = DustParticles()
 
     var body: some View {
@@ -97,10 +96,10 @@ struct SplashView: View {
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geo.size.width * 1.5)
+                    .frame(width: geo.size.width * 3.0)
                     .position(
                         x: geo.size.width / 2,
-                        y: buddhaVisible ? geo.size.height * 0.75 : geo.size.height * 1.9
+                        y: buddhaVisible ? geo.size.height * 0.65 : geo.size.height * 1.9
                     )
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
@@ -135,26 +134,12 @@ struct SplashView: View {
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 
-                // Menu cards
-                VStack {
-                    Spacer()
-                    HStack(spacing: 16) {
-                        MenuCard(label: "Drink", title: "Madirā")
-                        MenuCard(label: "Reflect", title: "Chintan")
-                    }
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, geo.size.height * 0.07)
-                }
-                .opacity(menuVisible ? 1 : 0)
-                .offset(y: menuVisible ? 0 : 12)
-                .animation(.easeOut(duration: 2).delay(0.8), value: menuVisible)
             }
             .task {
                 dust.initialize(size: geo.size)
                 // Wait one frame so SwiftUI captures the initial "from" state
                 try? await Task.sleep(nanoseconds: 16_000_000)
                 buddhaVisible = true
-                menuVisible = true
             }
         }
     }
