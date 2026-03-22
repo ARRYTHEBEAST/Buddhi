@@ -48,44 +48,6 @@ class DustParticles: ObservableObject {
     }
 }
 
-// MARK: - Scanline
-
-struct ScanlineView: View {
-    let screenHeight: CGFloat
-    @State private var height: CGFloat = 0
-    @State private var opacity: Double = 1
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 220/255, green: 200/255, blue: 160/255).opacity(0.8),
-                            Color.clear
-                        ],
-                        startPoint: .bottom,
-                        endPoint: .top
-                    )
-                )
-                .frame(width: 1, height: height)
-        }
-        .frame(maxWidth: .infinity)
-        .opacity(opacity)
-        .task {
-            try? await Task.sleep(nanoseconds: 16_000_000)
-            withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 2.0).delay(0.1)) {
-                height = screenHeight * 0.95
-            }
-            try? await Task.sleep(nanoseconds: 2_100_000_000)
-            withAnimation(.easeOut(duration: 0.5)) {
-                opacity = 0
-            }
-        }
-    }
-}
-
 // MARK: - Menu Card
 
 struct MenuCard: View {
@@ -121,7 +83,6 @@ struct MenuCard: View {
 
 struct SplashView: View {
     @State private var buddhaVisible = false
-    @State private var glowVisible = false
     @State private var menuVisible = false
     @StateObject private var dust = DustParticles()
 
@@ -130,40 +91,16 @@ struct SplashView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                // Glow
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                Color(red: 180/255, green: 160/255, blue: 120/255).opacity(0.16),
-                                Color(red: 100/255, green: 80/255, blue: 50/255).opacity(0.07),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 350
-                        )
-                    )
-                    .frame(width: 700, height: 700)
-                    .position(x: geo.size.width / 2, y: geo.size.height * 0.625)
-                    .scaleEffect(glowVisible ? 1 : 0.3)
-                    .opacity(glowVisible ? 1 : 0)
-                    .animation(.timingCurve(0.16, 1, 0.3, 1, duration: 3.5).delay(0.5), value: glowVisible)
-
-                // Scanline
-                ScanlineView(screenHeight: geo.size.height)
-
-                // Buddha — use .position() so the image isn't clipped by ZStack layout.
-                // Image is 2x screen height. We place its CENTER at y=screenHeight so
-                // the top of the image lands exactly at the top of the screen.
-                // Start: center at y=1.9h so only the head peeks from the bottom.
+                // Buddha — 1.5x screen width for zoom, scaledToFit so height scales naturally.
+                // Center placed at y=0.75h so face sits in upper portion of screen.
+                // Start at y=1.9h so head just peeks from the bottom.
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geo.size.width)
+                    .frame(width: geo.size.width * 1.5)
                     .position(
                         x: geo.size.width / 2,
-                        y: buddhaVisible ? geo.size.height : geo.size.height * 1.9
+                        y: buddhaVisible ? geo.size.height * 0.75 : geo.size.height * 1.9
                     )
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
@@ -217,7 +154,6 @@ struct SplashView: View {
                 // Wait one frame so SwiftUI captures the initial "from" state
                 try? await Task.sleep(nanoseconds: 16_000_000)
                 buddhaVisible = true
-                glowVisible = true
                 menuVisible = true
             }
         }
