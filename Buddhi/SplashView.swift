@@ -69,7 +69,7 @@ struct SplashView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.0))
+                        .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.1))
                         .offset(y: buddhaVisible ? 0 : geo.size.height)
                         .opacity(buddhaVisible ? 1 : 0)
                         .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
