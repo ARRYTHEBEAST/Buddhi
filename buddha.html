@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buddha</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  .glow {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    left: 50%;
+    top: 62.5vh;
+    transform: translateX(-50%) translateY(-50%);
+    background: radial-gradient(circle, rgba(180,160,120,0.16) 0%, rgba(100,80,50,0.07) 40%, transparent 70%);
+    opacity: 0;
+    animation: glowBloom 3.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+  }
+  .buddha-wrap {
+    position: absolute;
+    left: 50%;
+    /* top of image sits at 25vh, image is 150vh tall so bottom half bleeds off screen */
+    top: 8vh;
+    transform: translateX(-50%);
+    z-index: 2;
+    opacity: 0;
+    animation: riseAndZoom 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+    mix-blend-mode: lighten;
+  }
+  .buddha-img {
+    /* 150vh tall: top 75vh visible, bottom 75vh off-screen */
+    height: 150vh;
+    width: auto;
+    display: block;
+  }
+  .scanline {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 0;
+    background: linear-gradient(to top, rgba(220,200,160,0.8), transparent);
+    animation: scanRise 2.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+    z-index: 1;
+  }
+  .dust {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .menu {
+    position: absolute;
+    bottom: 7vh;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 32px;
+    z-index: 10;
+    opacity: 0;
+    animation: menuFade 2s ease-out 0.8s forwards;
+  }
+
+  .card {
+    flex: 1;
+    max-width: 160px;
+    padding: 18px 12px;
+    border: 1px solid rgba(220, 195, 140, 0.2);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(220, 195, 140, 0.6);
+    background: rgba(0, 0, 0, 0.65);
+  }
+
+  .card-label {
+    font-family: 'Georgia', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(220, 195, 140, 0.5);
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: 'Georgia', serif;
+    font-size: 22px;
+    letter-spacing: 0.04em;
+    color: rgba(235, 215, 170, 0.92);
+    font-style: italic;
+  }
+
+  @keyframes menuFade {
+    0%   { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+    0%   { opacity: 0; transform: translateX(-50%) translateY(80vh) scale(0.6); }
+    20%  { opacity: 1; }
+    100% { opacity: 1; transform: translateX(-50%) translateY(0px) scale(1); }
+  }
+  @keyframes glowBloom {
+    0%   { opacity: 0; transform: scale(0.3); }
+    50%  { opacity: 1; }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes scanRise {
+    0%   { height: 0; opacity: 1; }
+    70%  { height: 95vh; opacity: 0.5; }
+    100% { height: 95vh; opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="glow"></div>
+  <div class="scanline"></div>
+  <div class="buddha-wrap">
+    <img class="buddha-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Gandhara_Buddha_%28tnm%29.jpeg/960px-Gandhara_Buddha_%28tnm%29.jpeg">
+  </div>
+  <div class="menu">
+    <div class="card">
+      <div class="card-label">Left</div>
+      <div class="card-title">Madirā</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Right</div>
+      <div class="card-title">Chintan</div>
+    </div>
+  </div>
+  <canvas class="dust" id="dust"></canvas>
+</div>
+<script>
+  const canvas = document.getElementById("dust");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = [];
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: canvas.height + Math.random() * 300,
+      r: Math.random() * 1.6 + 0.2,
+      speed: Math.random() * 0.55 + 0.1,
+      drift: (Math.random() - 0.5) * 0.25,
+      opacity: 0,
+      maxOpacity: Math.random() * 0.45 + 0.08,
+      delay: Math.random() * 100,
+    });
+  }
+  let frame = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    particles.forEach(p => {
+      if (frame < p.delay) return;
+      p.y -= p.speed;
+      p.x += p.drift;
+      p.opacity = Math.min(p.opacity + 0.006, p.maxOpacity);
+      const fadeFactor = Math.min((p.y / canvas.height) * 3, 1);
+      const alpha = p.opacity * fadeFactor;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(220, 195, 140, " + alpha + ")";
+      ctx.fill();
+      if (p.y < -10) {
+        p.y = canvas.height + 10;
+        p.x = Math.random() * canvas.width;
+        p.opacity = 0;
+      }
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+</body>
+</html>
