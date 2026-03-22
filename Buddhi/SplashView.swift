@@ -83,6 +83,7 @@ struct MenuCard: View {
 
 struct SplashView: View {
     @State private var buddhaVisible = false
+    @State private var buddhaScale: CGFloat = 1.0
     @StateObject private var dust = DustParticles()
 
     var body: some View {
@@ -97,10 +98,11 @@ struct SplashView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: geo.size.width, height: geo.size.height)
-                    .scaleEffect(1.4, anchor: UnitPoint(x: 0.5, y: 0.35))
+                    .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.0))
                     .offset(y: buddhaVisible ? 0 : geo.size.height)
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
+                    .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaScale)
 
                 // Dust particles — updated inside Canvas per frame via TimelineView
                 TimelineView(.animation) { timeline in
@@ -138,6 +140,7 @@ struct SplashView: View {
                 // Wait one frame so SwiftUI captures the initial "from" state
                 try? await Task.sleep(nanoseconds: 16_000_000)
                 buddhaVisible = true
+                buddhaScale = 1.4
             }
         }
     }
