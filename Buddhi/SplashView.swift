@@ -96,10 +96,10 @@ struct SplashView: View {
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geo.size.width * 3.0)
+                    .frame(width: geo.size.width * 6.0)
                     .position(
                         x: geo.size.width / 2,
-                        y: buddhaVisible ? geo.size.height * 0.65 : geo.size.height * 1.9
+                        y: buddhaVisible ? geo.size.height * 0.55 : geo.size.height * 1.9
                     )
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
