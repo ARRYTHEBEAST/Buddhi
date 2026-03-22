@@ -69,7 +69,7 @@ struct SplashView: View {
                         .resizable()
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.1))
+                        .scaleEffect(buddhaScale, anchor: UnitPoint(x: 0.5, y: 0.12))
                         .offset(y: buddhaVisible ? 0 : geo.size.height)
                         .opacity(buddhaVisible ? 1 : 0)
                         .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
@@ -122,13 +122,16 @@ struct SplashView: View {
     }
 
     private func enterMind() {
-        // Zoom into the face and fade to black, then switch to MindView
-        withAnimation(.easeIn(duration: 0.5)) {
-            buddhaScale = 12.0
+        // Aggressive easeIn — starts slow then rockets, like a black hole pulling you in
+        withAnimation(.timingCurve(0.6, 0, 1, 1, duration: 0.75)) {
+            buddhaScale = 40.0
+        }
+        // Black veil closes in slightly after the zoom kicks off
+        withAnimation(.timingCurve(0.4, 0, 1, 1, duration: 0.6).delay(0.1)) {
             overlayOpacity = 1.0
         }
         Task {
-            try? await Task.sleep(nanoseconds: 550_000_000)
+            try? await Task.sleep(nanoseconds: 750_000_000)
             showMind = true
         }
     }
