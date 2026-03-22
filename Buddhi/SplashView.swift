@@ -153,15 +153,18 @@ struct SplashView: View {
                 // Scanline
                 ScanlineView(screenHeight: geo.size.height)
 
-                // Buddha — 200% screen height, face+torso fills screen.
-                // Image center must be at 1.0h from top so image top = 0 (screen top).
-                // offset = 1.0h - 0.5h (screen center) = +0.5h
-                // Start off-screen below: offset = +1.4h
+                // Buddha — use .position() so the image isn't clipped by ZStack layout.
+                // Image is 2x screen height. We place its CENTER at y=screenHeight so
+                // the top of the image lands exactly at the top of the screen.
+                // Start: center at y=1.9h so only the head peeks from the bottom.
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: geo.size.height * 2.0)
-                    .offset(y: buddhaVisible ? geo.size.height * 0.5 : geo.size.height * 1.4)
+                    .frame(width: geo.size.width)
+                    .position(
+                        x: geo.size.width / 2,
+                        y: buddhaVisible ? geo.size.height : geo.size.height * 1.9
+                    )
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
 
