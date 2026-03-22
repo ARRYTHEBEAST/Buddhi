@@ -90,17 +90,15 @@ struct SplashView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                // Buddha — 1.5x screen width for zoom, scaledToFit so height scales naturally.
-                // Center placed at y=0.75h so face sits in upper portion of screen.
-                // Start at y=1.9h so head just peeks from the bottom.
+                // scaledToFill fills the screen, scaleEffect zooms into the face.
+                // anchor y:0.2 targets the upper portion (face area).
+                // offset rises from below screen to final position.
                 Image("BuddhaImage")
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: geo.size.width * 16.0)
-                    .position(
-                        x: geo.size.width / 2,
-                        y: buddhaVisible ? geo.size.height * 0.55 : geo.size.height * 1.9
-                    )
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .scaleEffect(5.0, anchor: UnitPoint(x: 0.5, y: 0.2))
+                    .offset(y: buddhaVisible ? 0 : geo.size.height)
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
 
