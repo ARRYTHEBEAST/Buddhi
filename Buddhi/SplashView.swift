@@ -96,7 +96,7 @@ struct SplashView: View {
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geo.size.width * 6.0)
+                    .frame(width: geo.size.width * 16.0)
                     .position(
                         x: geo.size.width / 2,
                         y: buddhaVisible ? geo.size.height * 0.55 : geo.size.height * 1.9
