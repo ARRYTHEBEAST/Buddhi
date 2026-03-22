@@ -73,14 +73,14 @@ struct ScanlineView: View {
         }
         .frame(maxWidth: .infinity)
         .opacity(opacity)
-        .onAppear {
+        .task {
+            try? await Task.sleep(nanoseconds: 16_000_000)
             withAnimation(.timingCurve(0.16, 1, 0.3, 1, duration: 2.0).delay(0.1)) {
                 height = screenHeight * 0.95
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
-                withAnimation(.easeOut(duration: 0.5)) {
-                    opacity = 0
-                }
+            try? await Task.sleep(nanoseconds: 2_100_000_000)
+            withAnimation(.easeOut(duration: 0.5)) {
+                opacity = 0
             }
         }
     }
@@ -153,24 +153,26 @@ struct SplashView: View {
                 // Scanline
                 ScanlineView(screenHeight: geo.size.height)
 
-                // Buddha — image is 150% screen height; center sits at ~83% from top
-                // so final offset = +0.33h to place top of image at ~8% from top
+                // Buddha — 150% screen height, top of image at ~8% from top
+                // ZStack centers views: image center = screen_center + 0.33h
+                // rise start: screen_center + 1.13h (off screen below)
                 Image("BuddhaImage")
                     .resizable()
                     .scaledToFit()
                     .frame(height: geo.size.height * 1.5)
-                    .blendMode(.lighten)
                     .offset(y: buddhaVisible ? geo.size.height * 0.33 : geo.size.height * 1.13)
                     .scaleEffect(buddhaVisible ? 1 : 0.6)
                     .opacity(buddhaVisible ? 1 : 0)
                     .animation(.timingCurve(0.22, 1, 0.36, 1, duration: 1.8).delay(0.05), value: buddhaVisible)
 
-                // Dust particles
-                TimelineView(.animation) { _ in
+                // Dust particles — updated inside Canvas per frame via TimelineView
+                TimelineView(.animation) { timeline in
                     Canvas { ctx, size in
+                        dust.update(size: size)
                         for p in dust.particles {
                             let fadeFactor = min((p.y / size.height) * 3, 1)
                             let alpha = p.opacity * fadeFactor
+                            guard alpha > 0 else { continue }
                             ctx.fill(
                                 Path(ellipseIn: CGRect(
                                     x: p.x - p.radius,
@@ -187,9 +189,8 @@ struct SplashView: View {
                             )
                         }
                     }
-                    .onChange(of: Date()) {
-                        dust.update(size: geo.size)
-                    }
+                    // Reference timeline.date so Canvas redraws every frame
+                    .id(timeline.date)
                 }
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
@@ -208,8 +209,10 @@ struct SplashView: View {
                 .offset(y: menuVisible ? 0 : 12)
                 .animation(.easeOut(duration: 2).delay(0.8), value: menuVisible)
             }
-            .onAppear {
+            .task {
                 dust.initialize(size: geo.size)
+                // Wait one frame so SwiftUI captures the initial "from" state
+                try? await Task.sleep(nanoseconds: 16_000_000)
                 buddhaVisible = true
                 glowVisible = true
                 menuVisible = true
